@@ -1,4 +1,4 @@
-package com.example.solanamobiledappscaffold.ui.home
+package com.example.solanamobiledappscaffold.presentation.ui.home
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
