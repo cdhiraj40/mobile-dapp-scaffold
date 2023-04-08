@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/screen_background"
+    android:background="@drawable/gradient_animation"
     tools:context=".presentation.ui.home.HomeFragment">
 
     <TextView
@@ -13,12 +13,12 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="start"
+        android:text="@string/home_page_heading"
         android:textColor="@drawable/text_background"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Solana Mobile Scaffold" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/sub_heading"
@@ -26,33 +26,49 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="start"
-        android:text="Unleash the full power of blockchain with Solana Mobile. Solana mobile applications made easy."
+        android:text="@string/home_page_sub_heading"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/heading" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/airdrop_btn"
+        android:id="@+id/connect_wallet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Airdrop 1 SOL"
         android:backgroundTint="@drawable/text_background"
+        android:text="@string/connect_wallet"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/connection_status"
+        style="@style/TextAppearance.AppCompat.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:drawablePadding="16dp"
+        android:gravity="center"
+        app:drawableStartCompat="@drawable/baseline_circle_24"
+        app:drawableTint="@color/teal"
+        app:layout_constraintBottom_toTopOf="@id/connect_wallet"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Connected" />
+
     <TextView
         android:id="@+id/balance_tv"
-        android:layout_width="match_parent"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="center"
-        android:text="0 SOL"
-        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="0 SOL"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/airdrop_btn" />
+        app:layout_constraintTop_toBottomOf="@id/connect_wallet" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
