@@ -11,13 +11,14 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.GuardedBy
 import androidx.core.content.ContextCompat
-import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.solanamobiledappscaffold.R
+import com.example.solanamobiledappscaffold.common.Constants.formatAddress
 import com.example.solanamobiledappscaffold.databinding.FragmentHomeBinding
 import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicPublicKeyStorageUseCase
+import com.example.solanamobiledappscaffold.presentation.ui.extensions.showSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -32,8 +33,6 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
 
-    private lateinit var basicPublicKeyStorageUseCase: BasicPublicKeyStorageUseCase
-
     private val activityResultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             intentSender.onActivityComplete()
@@ -46,29 +45,34 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        basicPublicKeyStorageUseCase = BasicPublicKeyStorageUseCase(requireContext())
-        if (basicPublicKeyStorageUseCase.publicKey != null) {
-            setConnected()
-        } else {
-            setDisconnected()
-        }
-
-        //
-        binding.connectWallet.setOnClickListener {
-            if (binding.connectWallet.text.equals(getString(R.string.connect_wallet))) {
-                viewModel.connectWallet(intentSender)
-            } else {
-//            viewModel.requestAirdrop()
-            }
-        }
+        binding.walletBtn.text = viewModel.getWalletButtonText(requireContext())
 
         val animDrawable = binding.root.background as AnimationDrawable
         animDrawable.setEnterFadeDuration(10)
         animDrawable.setExitFadeDuration(1000)
         animDrawable.start()
 
-        observeViewModel()
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.walletBtn.setOnClickListener {
+            // TODO: open modal showing two things, copy and disconnect
+            viewModel.interactWallet(intentSender)
+        }
+
+        // action based on the button text
+        binding.airdropBtn.setOnClickListener {
+            viewModel.uiState.value.wallet?.let {
+                viewModel.requestAirdrop()
+            } ?: view.showSnackbar(
+                "Connect a wallet first!"
+            )
+        }
+
+        observeViewModel()
     }
 
     private fun observeViewModel() {
@@ -76,36 +80,59 @@ class HomeFragment : Fragment() {
             with(viewModel) {
                 uiState.collect { uiState ->
                     uiState.wallet?.let {
-                        if (basicPublicKeyStorageUseCase.publicKey == null) {
-                            basicPublicKeyStorageUseCase.savePublicKey(
-                                it.publicKey,
-                            )
-                        }
-                        setConnected()
+                        connectWallet(it.publicKey)
+                    } ?: disconnectWallet()
+
+                    uiState.balance.let {
+                        binding.balanceTv.text = String.format(
+                            resources.getString(R.string.wallet_balance),
+                            it
+                        )
                     }
+
+                    // TODO: show snackbar, extension
+//                    uiState.error.let {
+//                        binding.errors.text = it
+//                    }
                 }
             }
         }
     }
 
-    private fun setConnected() {
-        binding.connectionStatus.text = getString(R.string.connected)
-        TextViewCompat.setCompoundDrawableTintList(
-            binding.connectionStatus,
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.teal))
+
+    private fun connectWallet(publicKey: String) {
+        binding.walletBtn.text = formatAddress(publicKey)
+        binding.walletBtn.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.black)
         )
 
-        binding.connectWallet.text = getString(R.string.airdrop_sol)
+        binding.walletBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.solana_green)
+        )
+
+        binding.walletBtn.iconTint =
+            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.teal))
+
+        binding.airdropBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.drawable.text_background as Int)
+        )
     }
 
-    private fun setDisconnected() {
-        binding.connectionStatus.text = getString(R.string.not_connected)
-        TextViewCompat.setCompoundDrawableTintList(
-            binding.connectionStatus,
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.red))
+    private fun disconnectWallet() {
+        binding.walletBtn.text = getString(R.string.select_wallet)
+        binding.walletBtn.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.white)
+        )
+        binding.walletBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.black)
         )
 
-        binding.connectWallet.text = getString(R.string.connect_wallet)
+        binding.walletBtn.iconTint =
+            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.red))
+
+        binding.airdropBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.dark_gray)
+        )
     }
 
     private val intentSender = object : HomeViewModel.StartActivityForResultSender {

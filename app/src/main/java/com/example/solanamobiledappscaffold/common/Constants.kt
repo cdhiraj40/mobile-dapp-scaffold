@@ -19,4 +19,10 @@ object Constants {
             balanceInSol.setScale(4, RoundingMode.DOWN)
         }
     }
+
+    fun formatAddress(publicKey: String): String {
+        val firstChars = publicKey.substring(0, 4)
+        val lastChars = publicKey.substring(publicKey.length - 4)
+        return "$firstChars...$lastChars"
+    }
 }

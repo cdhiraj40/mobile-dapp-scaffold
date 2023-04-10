@@ -6,7 +6,13 @@ import java.math.BigDecimal
 data class HomeState(
     val isLoading: Boolean = false,
     val isAuthorized: Boolean = false,
+    var wallet: Wallet? = null,
     val balance: BigDecimal = BigDecimal(0),
-    val wallet: Wallet? = null,
     val error: String = "",
+    val texts: Texts = Texts(),
+)
+
+data class Texts(
+    val walletButtonText: String = "",
+    val airdropButtonText: String = "",
 )

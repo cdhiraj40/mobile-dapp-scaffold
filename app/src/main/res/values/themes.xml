@@ -10,6 +10,7 @@
         <item name="android:textColorSecondary">@color/white</item>
     </style>
 
+    <!-- TODO: Light theme does not show other bottom nav item colors-->
     <style name="BottomNavigationTheme">
         <item name="colorPrimary">@color/white</item>
         <item name="colorSecondary">@color/teal</item>

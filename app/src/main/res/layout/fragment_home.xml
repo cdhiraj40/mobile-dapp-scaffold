@@ -33,42 +33,45 @@
         app:layout_constraintTop_toBottomOf="@id/heading" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/connect_wallet"
+        android:id="@+id/wallet_btn"
+        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@drawable/text_background"
-        android:text="@string/connect_wallet"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        app:cornerRadius="10dp"
+        app:icon="@drawable/baseline_circle_24"
+        android:textColor="@color/black"
+        android:backgroundTint="#14F195"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sub_heading"
+        tools:text="EABC...GHRA" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/airdrop_btn"
+        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/gray"
+        android:gravity="center"
+        android:text="@string/airdrop_sol"
+        app:cornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/connection_status"
-        style="@style/TextAppearance.AppCompat.Large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:drawablePadding="16dp"
-        android:gravity="center"
-        app:drawableStartCompat="@drawable/baseline_circle_24"
-        app:drawableTint="@color/teal"
-        app:layout_constraintBottom_toTopOf="@id/connect_wallet"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="Connected" />
-
     <TextView
         android:id="@+id/balance_tv"
-        style="@style/TextAppearance.AppCompat.Medium"
+        style="@style/TextAppearance.AppCompat.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="center"
-        tools:text="0 SOL"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/connect_wallet" />
+        app:layout_constraintTop_toBottomOf="@id/airdrop_btn"
+        tools:text="0 SOL" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

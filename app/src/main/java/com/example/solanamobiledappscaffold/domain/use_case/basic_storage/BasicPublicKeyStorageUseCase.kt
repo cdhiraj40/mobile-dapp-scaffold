@@ -2,8 +2,9 @@ package com.example.solanamobiledappscaffold.domain.use_case.basic_storage
 
 import android.content.Context
 import android.content.SharedPreferences
+import javax.inject.Inject
 
-class BasicPublicKeyStorageUseCase(context: Context) {
+class BasicPublicKeyStorageUseCase @Inject constructor(context: Context) {
     private val preference: SharedPreferences
 
     init {
@@ -13,6 +14,12 @@ class BasicPublicKeyStorageUseCase(context: Context) {
     fun savePublicKey(publicKey: String) {
         val editor = preference.edit()
         editor.putString(PUBLIC_KEY_VALUE, publicKey)
+        editor.apply()
+    }
+
+    fun clearPublicKey() {
+        val editor = preference.edit()
+        editor.remove(PUBLIC_KEY_VALUE)
         editor.apply()
     }
 
