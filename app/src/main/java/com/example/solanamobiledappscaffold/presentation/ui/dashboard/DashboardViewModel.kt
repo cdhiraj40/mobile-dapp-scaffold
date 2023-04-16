@@ -2,7 +2,6 @@ package com.example.solanamobiledappscaffold.presentation.ui.dashboard
 
 import android.content.ActivityNotFoundException
 import android.net.Uri
-import android.util.Base64
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,6 +12,7 @@ import com.example.solanamobiledappscaffold.domain.model.Wallet
 import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicWalletStorageUseCase
 import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.authorize_wallet.AuthorizeWalletUseCase
 import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.sign_message.SignMessageUseCase
+import com.example.solanamobiledappscaffold.domain.utils.toBase64
 import com.example.solanamobiledappscaffold.presentation.utils.StartActivityForResultSender
 import com.solana.Solana
 import com.solana.mobilewalletadapter.clientlib.protocol.MobileWalletAdapterClient
@@ -50,9 +50,10 @@ class DashboardViewModel @Inject constructor(
 
     init {
         _solana.value = Solana(HttpNetworkingRouter(RPCEndpoint.devnetSolana))
-        if (walletStorageUseCase.publicKey != null) {
+        if (walletStorageUseCase.publicKey58 != null && walletStorageUseCase.publicKey64 != null) {
             _uiState.value.wallet = Wallet(
-                walletStorageUseCase.publicKey.toString(),
+                walletStorageUseCase.publicKey58.toString(),
+                walletStorageUseCase.publicKey64.toString(),
                 walletStorageUseCase.balance,
             )
         } else {
@@ -64,35 +65,40 @@ class DashboardViewModel @Inject constructor(
         localAssociateAndExecute(sender) { client ->
             when (val result = authorizeWalletUseCase(client)) {
                 is Resource.Success -> {
+                    Log.d(TAG, "Wallet connected: ${result.data}")
+
                     _uiState.update {
                         it.copy(
-                            wallet = Wallet(
-                                result.data!!.publicKey,
-                                walletUriBase = result.data.walletUriBase,
-                                authToken = result.data.authToken,
-                            ),
+                            wallet = result.data,
                         )
                     }
 
-                    Log.d(TAG, "Wallet connected: ${result.data}")
+                    walletStorageUseCase.saveWallet(
+                        Wallet(
+                            result.data!!.publicKey58,
+                            result.data.publicKey64,
+                            result.data.balance,
+                        ),
+                    )
+                    
                     val messages = Array(1) {
                         "Say Hello to Solana Mobile dApp Scaffold!".toByteArray()
                     }
-                    
+
                     when (
                         val message = signMessageUseCase(
-                        client,
-                        messages,
-                        arrayOf(Base64.decode(_uiState.value.wallet?.publicKey, Base64.DEFAULT)),
-                    )
+                            client,
+                            messages,
+                            arrayOf(walletStorageUseCase.publicKey64!!.toBase64()),
+                        )
                     ) {
                         is Resource.Success -> {
                             val signPayloadResult = SignPayloadResult(message.data!!.signedPayload)
                         }
-                        
+
                         is Resource.Loading -> {
-                        } 
-                        
+                        }
+
                         is Resource.Error -> {
                         }
                     }

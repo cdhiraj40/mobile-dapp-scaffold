@@ -56,9 +56,10 @@ class HomeViewModel @Inject constructor(
 
     init {
         _solana.value = Solana(HttpNetworkingRouter(RPCEndpoint.devnetSolana))
-        if (walletStorageUseCase.publicKey != null) {
+        if (walletStorageUseCase.publicKey58 != null && walletStorageUseCase.publicKey64 != null) {
             _uiState.value.wallet = Wallet(
-                walletStorageUseCase.publicKey.toString(),
+                walletStorageUseCase.publicKey58.toString(),
+                walletStorageUseCase.publicKey64.toString(),
             )
             getBalance()
         } else {
@@ -67,7 +68,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun interactWallet(sender: StartActivityForResultSender) {
-        if (walletStorageUseCase.publicKey == null) {
+        if (walletStorageUseCase.publicKey58 == null) {
             connectWallet(sender)
         } else {
             clearWallet()
@@ -84,9 +85,11 @@ class HomeViewModel @Inject constructor(
                         wallet = result.data,
                         isLoading = false,
                     )
-                    walletStorageUseCase.savePublicKey(result.data!!.publicKey)
-                    walletStorageUseCase.saveWalletURI(result.data.walletUriBase.toString())
-                    walletStorageUseCase.saveAuthToken(result.data.authToken.toString())
+                    
+                    walletStorageUseCase.saveWallet(
+                        result.data!!,
+                    )
+                    
                     getBalance()
                 }
                 is Resource.Loading -> {
@@ -110,7 +113,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _solana.value?.let {
                 withContext(Dispatchers.IO) {
-                    walletStorageUseCase.publicKey?.let { publicKey ->
+                    walletStorageUseCase.publicKey58?.let { publicKey ->
                         balanceUseCase(
                             it,
                             PublicKey(publicKey),
@@ -119,7 +122,7 @@ class HomeViewModel @Inject constructor(
                             when (result) {
                                 is Resource.Success -> {
                                     // save balance to storage
-                                    walletStorageUseCase.saveBalance(
+                                    walletStorageUseCase.updateBalance(
                                         result.data!!.toString(),
                                     )
 
@@ -155,7 +158,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getWalletButtonText(context: Context): String {
-        val publicKey = walletStorageUseCase.publicKey
+        val publicKey = walletStorageUseCase.publicKey58
         return if (publicKey != null) {
             Constants.formatAddress(publicKey.toString())
         } else {
@@ -164,9 +167,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun clearWallet() {
-        walletStorageUseCase.clearPublicKey()
-        walletStorageUseCase.clearBalance()
-        walletStorageUseCase.clearWalletURI()
+        walletStorageUseCase.clearWallet()
         _uiState.update {
             it.copy(
                 wallet = null,
@@ -179,7 +180,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _solana.value?.let {
                 withContext(Dispatchers.IO) {
-                    walletStorageUseCase.publicKey?.let { publicKey ->
+                    walletStorageUseCase.publicKey58?.let { publicKey ->
                         requestAirdropUseCase(
                             it,
                             PublicKey(publicKey),

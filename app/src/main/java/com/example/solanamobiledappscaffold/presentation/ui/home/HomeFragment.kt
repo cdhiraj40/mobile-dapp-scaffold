@@ -76,7 +76,7 @@ class HomeFragment : Fragment() {
         binding.copyBtn.setOnClickListener {
             requireContext().copyToClipboard(
                 "Wallet address",
-                viewModel.uiState.value.wallet?.publicKey ?: "",
+                viewModel.uiState.value.wallet?.publicKey58 ?: "",
             ).let { 
                 view.showSnackbar("Copied to clipboard!")
             }
@@ -96,7 +96,7 @@ class HomeFragment : Fragment() {
             with(viewModel) {
                 uiState.collect { uiState ->
                     uiState.wallet?.let {
-                        connectWallet(it.publicKey)
+                        connectWallet(it.publicKey58)
                     } ?: run {
                         clearWallet()
                         disconnectWallet()

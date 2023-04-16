@@ -66,7 +66,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun checkWalletConnected(view: View, action: () -> Unit) {
-        viewModel.uiState.value.wallet?.publicKey?.let {
+        viewModel.uiState.value.wallet?.publicKey58?.let {
             action.invoke()
         } ?: view.showSnackbar("Connect a wallet first!")
     }
