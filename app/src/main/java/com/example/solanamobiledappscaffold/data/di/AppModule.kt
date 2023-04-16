@@ -3,9 +3,9 @@ package com.example.solanamobiledappscaffold.data.di
 import android.content.Context
 import com.example.solanamobiledappscaffold.data.repository.WalletRepositoryImpl
 import com.example.solanamobiledappscaffold.domain.repository.WalletRepository
-import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicPublicKeyStorageUseCase
-import com.example.solanamobiledappscaffold.domain.use_case.transaction_usecase.BalanceUseCase
-import com.example.solanamobiledappscaffold.domain.use_case.transaction_usecase.RequestAirdropUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicWalletStorageUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transaction_usecase.BalanceUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transaction_usecase.RequestAirdropUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,9 +29,8 @@ class AppModule() {
     @Singleton
     fun provideRequestAirdropUseCase(): RequestAirdropUseCase = RequestAirdropUseCase()
 
-
     @Provides
     @Singleton
-    fun provideBasicPublicKeyStorageUseCase(@ApplicationContext context: Context): BasicPublicKeyStorageUseCase =
-        BasicPublicKeyStorageUseCase(context)
+    fun provideBasicPublicKeyStorageUseCase(@ApplicationContext context: Context): BasicWalletStorageUseCase =
+        BasicWalletStorageUseCase(context)
 }

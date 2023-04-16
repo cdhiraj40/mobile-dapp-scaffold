@@ -1,4 +1,4 @@
-package com.example.solanamobiledappscaffold.domain.use_case.authorize_wallet
+package com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.authorize_wallet
 
 import android.util.Log
 import com.example.solanamobiledappscaffold.common.Resource

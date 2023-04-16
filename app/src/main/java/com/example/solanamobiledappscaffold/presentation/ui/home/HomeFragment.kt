@@ -17,8 +17,9 @@ import androidx.lifecycle.lifecycleScope
 import com.example.solanamobiledappscaffold.R
 import com.example.solanamobiledappscaffold.common.Constants.formatAddress
 import com.example.solanamobiledappscaffold.databinding.FragmentHomeBinding
-import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicPublicKeyStorageUseCase
+import com.example.solanamobiledappscaffold.presentation.ui.extensions.copyToClipboard
 import com.example.solanamobiledappscaffold.presentation.ui.extensions.showSnackbar
+import com.example.solanamobiledappscaffold.presentation.utils.StartActivityForResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -44,20 +45,20 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-
-        binding.walletBtn.text = viewModel.getWalletButtonText(requireContext())
-
+        
         val animDrawable = binding.root.background as AnimationDrawable
         animDrawable.setEnterFadeDuration(10)
         animDrawable.setExitFadeDuration(1000)
         animDrawable.start()
-
+        
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.walletBtn.text = viewModel.getWalletButtonText(requireContext())
+        
         binding.walletBtn.setOnClickListener {
             // TODO: open modal showing two things, copy and disconnect
             viewModel.interactWallet(intentSender)
@@ -68,11 +69,26 @@ class HomeFragment : Fragment() {
             viewModel.uiState.value.wallet?.let {
                 viewModel.requestAirdrop()
             } ?: view.showSnackbar(
-                "Connect a wallet first!"
+                "Connect a wallet first!",
             )
+        }
+        
+        binding.copyBtn.setOnClickListener {
+            requireContext().copyToClipboard(
+                "Wallet address",
+                viewModel.uiState.value.wallet?.publicKey ?: "",
+            ).let { 
+                view.showSnackbar("Copied to clipboard!")
+            }
         }
 
         observeViewModel()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.getBalance()
     }
 
     private fun observeViewModel() {
@@ -81,61 +97,71 @@ class HomeFragment : Fragment() {
                 uiState.collect { uiState ->
                     uiState.wallet?.let {
                         connectWallet(it.publicKey)
-                    } ?: disconnectWallet()
+                    } ?: run {
+                        clearWallet()
+                        disconnectWallet()
+                    }
 
                     uiState.balance.let {
                         binding.balanceTv.text = String.format(
-                            resources.getString(R.string.wallet_balance),
-                            it
+                            resources.getString(R.string.wallet_balance), 
+                            it,
                         )
                     }
 
                     // TODO: show snackbar, extension
 //                    uiState.error.let {
-//                        binding.errors.text = it
+//                        requireView().showSnackbar(
+//                            it,
+//                        )
 //                    }
                 }
             }
         }
     }
-
-
+    
     private fun connectWallet(publicKey: String) {
+        // show the copy button
+        binding.copyBtn.visibility = View.VISIBLE
+        
         binding.walletBtn.text = formatAddress(publicKey)
         binding.walletBtn.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.black)
+            ContextCompat.getColor(requireContext(), R.color.black),
         )
 
         binding.walletBtn.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.solana_green)
+            ContextCompat.getColor(requireContext(), R.color.solana_green),
         )
 
         binding.walletBtn.iconTint =
             ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.teal))
 
         binding.airdropBtn.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.drawable.text_background as Int)
+            ContextCompat.getColor(requireContext(), R.drawable.text_background as Int),
         )
     }
 
     private fun disconnectWallet() {
+        // hide the copy button
+        binding.copyBtn.visibility = View.GONE
+        
         binding.walletBtn.text = getString(R.string.select_wallet)
         binding.walletBtn.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.white)
+            ContextCompat.getColor(requireContext(), R.color.white),
         )
         binding.walletBtn.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.black)
+            ContextCompat.getColor(requireContext(), R.color.black),
         )
 
         binding.walletBtn.iconTint =
             ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.red))
 
         binding.airdropBtn.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.dark_gray)
+            ContextCompat.getColor(requireContext(), R.color.dark_gray),
         )
     }
 
-    private val intentSender = object : HomeViewModel.StartActivityForResultSender {
+    private val intentSender = object : StartActivityForResultSender {
         @GuardedBy("this")
         private var callback: (() -> Unit)? = null
 

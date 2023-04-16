@@ -2,7 +2,6 @@ package com.example.solanamobiledappscaffold.presentation.ui.home
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -13,10 +12,11 @@ import com.example.solanamobiledappscaffold.common.Constants
 import com.example.solanamobiledappscaffold.common.Constants.formatBalance
 import com.example.solanamobiledappscaffold.common.Resource
 import com.example.solanamobiledappscaffold.domain.model.Wallet
-import com.example.solanamobiledappscaffold.domain.use_case.authorize_wallet.AuthorizeWalletUseCase
-import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicPublicKeyStorageUseCase
-import com.example.solanamobiledappscaffold.domain.use_case.transaction_usecase.BalanceUseCase
-import com.example.solanamobiledappscaffold.domain.use_case.transaction_usecase.RequestAirdropUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicWalletStorageUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.authorize_wallet.AuthorizeWalletUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transaction_usecase.BalanceUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transaction_usecase.RequestAirdropUseCase
+import com.example.solanamobiledappscaffold.presentation.utils.StartActivityForResultSender
 import com.solana.Solana
 import com.solana.core.PublicKey
 import com.solana.mobilewalletadapter.clientlib.protocol.MobileWalletAdapterClient
@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
     private val authorizeWalletUseCase: AuthorizeWalletUseCase,
     private val requestAirdropUseCase: RequestAirdropUseCase,
     private val balanceUseCase: BalanceUseCase,
-    private val publicKeyStorageUseCase: BasicPublicKeyStorageUseCase,
+    private val walletStorageUseCase: BasicWalletStorageUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -56,9 +56,9 @@ class HomeViewModel @Inject constructor(
 
     init {
         _solana.value = Solana(HttpNetworkingRouter(RPCEndpoint.devnetSolana))
-        if (publicKeyStorageUseCase.publicKey != null) {
+        if (walletStorageUseCase.publicKey != null) {
             _uiState.value.wallet = Wallet(
-                publicKeyStorageUseCase.publicKey.toString()
+                walletStorageUseCase.publicKey.toString(),
             )
             getBalance()
         } else {
@@ -66,19 +66,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun savePublicKey(publicKey: String) {
-        if (publicKeyStorageUseCase.publicKey == null) {
-            publicKeyStorageUseCase.savePublicKey(
-                publicKey,
-            )
-        }
-    }
-
     fun interactWallet(sender: StartActivityForResultSender) {
-        if (publicKeyStorageUseCase.publicKey == null) {
+        if (walletStorageUseCase.publicKey == null) {
             connectWallet(sender)
         } else {
-            disconnectWallet()
+            clearWallet()
         }
     }
 
@@ -92,7 +84,9 @@ class HomeViewModel @Inject constructor(
                         wallet = result.data,
                         isLoading = false,
                     )
-                    savePublicKey(result.data!!.publicKey)
+                    walletStorageUseCase.savePublicKey(result.data!!.publicKey)
+                    walletStorageUseCase.saveWalletURI(result.data.walletUriBase.toString())
+                    walletStorageUseCase.saveAuthToken(result.data.authToken.toString())
                     getBalance()
                 }
                 is Resource.Loading -> {
@@ -112,21 +106,26 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getBalance() {
+    fun getBalance() {
         viewModelScope.launch {
             _solana.value?.let {
                 withContext(Dispatchers.IO) {
-                    publicKeyStorageUseCase.publicKey?.let { publicKey ->
+                    walletStorageUseCase.publicKey?.let { publicKey ->
                         balanceUseCase(
                             it,
                             PublicKey(publicKey),
-                            Commitment.CONFIRMED
+                            Commitment.CONFIRMED,
                         ).collect { result ->
                             when (result) {
                                 is Resource.Success -> {
+                                    // save balance to storage
+                                    walletStorageUseCase.saveBalance(
+                                        result.data!!.toString(),
+                                    )
+
                                     _uiState.update {
                                         it.copy(
-                                            balance = formatBalance(result.data!!)
+                                            balance = formatBalance(result.data),
                                         )
                                     }
                                 }
@@ -135,7 +134,7 @@ class HomeViewModel @Inject constructor(
                                     _uiState.update {
                                         it.copy(
                                             error = result.message
-                                                ?: "An unexpected error occurred!"
+                                                ?: "An unexpected error occurred!",
                                         )
                                     }
                                 }
@@ -143,7 +142,7 @@ class HomeViewModel @Inject constructor(
                                 is Resource.Loading -> {
                                     _uiState.update {
                                         it.copy(
-                                            isLoading = true
+                                            isLoading = true,
                                         )
                                     }
                                 }
@@ -156,7 +155,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getWalletButtonText(context: Context): String {
-        val publicKey = publicKeyStorageUseCase.publicKey
+        val publicKey = walletStorageUseCase.publicKey
         return if (publicKey != null) {
             Constants.formatAddress(publicKey.toString())
         } else {
@@ -164,12 +163,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun disconnectWallet() {
-        publicKeyStorageUseCase.clearPublicKey()
+    fun clearWallet() {
+        walletStorageUseCase.clearPublicKey()
+        walletStorageUseCase.clearBalance()
+        walletStorageUseCase.clearWalletURI()
         _uiState.update {
             it.copy(
                 wallet = null,
-                balance = BigDecimal(0)
+                balance = BigDecimal(0),
             )
         }
     }
@@ -178,7 +179,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _solana.value?.let {
                 withContext(Dispatchers.IO) {
-                    publicKeyStorageUseCase.publicKey?.let { publicKey ->
+                    walletStorageUseCase.publicKey?.let { publicKey ->
                         requestAirdropUseCase(
                             it,
                             PublicKey(publicKey),
@@ -191,21 +192,20 @@ class HomeViewModel @Inject constructor(
                                     _uiState.update {
                                         it.copy(
                                             error = result.message
-                                                ?: "An unexpected error occurred!"
+                                                ?: "An unexpected error occurred!",
                                         )
                                     }
                                 }
                                 is Resource.Loading -> {
                                     _uiState.update {
                                         it.copy(
-                                            isLoading = true
+                                            isLoading = true,
                                         )
                                     }
                                 }
                             }
                         }
                     }
-
                 }
             }
         }
@@ -270,13 +270,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    interface StartActivityForResultSender {
-        fun startActivityForResult(
-            intent: Intent,
-            onActivityCompleteCallback: () -> Unit,
-        ) // throws ActivityNotFoundException
     }
 
     companion object {

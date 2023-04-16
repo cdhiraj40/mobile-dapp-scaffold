@@ -5,8 +5,7 @@ import java.math.BigDecimal
 
 data class DashboardState(
     val isLoading: Boolean = false,
-    val isAuthorized: Boolean = false,
     val balance: BigDecimal = BigDecimal(0),
-    val wallet: Wallet? = null,
+    var wallet: Wallet? = null,
     val error: String = "",
 )

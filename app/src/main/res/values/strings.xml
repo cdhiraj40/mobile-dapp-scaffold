@@ -9,4 +9,11 @@
 
     <string name="wallet_balance">%1$s SOL</string>
     <string name="select_wallet">Select Wallet</string>
+    <string name="copy_address">Copy address</string>
+    <string name="disconnect">Disconnect</string>
+
+    <!-- dashboard strings -->
+    <string name="sign_message">Sign Message</string>
+    <string name="send_transaction">Send Transaction</string>
+    <string name="send_versioned_transaction">Send Versioned Transaction</string>
 </resources>

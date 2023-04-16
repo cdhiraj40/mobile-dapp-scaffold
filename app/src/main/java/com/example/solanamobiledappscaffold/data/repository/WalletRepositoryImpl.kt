@@ -3,6 +3,7 @@ package com.example.solanamobiledappscaffold.data.repository
 import android.net.Uri
 import android.util.Log
 import com.example.solanamobiledappscaffold.common.Constants
+import com.example.solanamobiledappscaffold.data.remote.dto.SignPayloadResultDto
 import com.example.solanamobiledappscaffold.data.remote.dto.WalletDto
 import com.example.solanamobiledappscaffold.domain.repository.WalletRepository
 import com.solana.mobilewalletadapter.clientlib.protocol.MobileWalletAdapterClient
@@ -14,11 +15,11 @@ class WalletRepositoryImpl @Inject constructor() : WalletRepository {
         val result = client.authorize(
             Uri.parse(Constants.SOLANA_URL),
             Uri.parse("favicon.ico"),
-            Constants.SOLANA,
+            Constants.dAPP_NAME,
             ProtocolContract.CLUSTER_DEVNET,
         ).get()
 
-        Log.d(WalletRepository::class.java.simpleName, "Authorized: $result")
+        Log.d(TAG, "Authorized: $result")
 
         return WalletDto(
             authToken = result.authToken,
@@ -26,5 +27,26 @@ class WalletRepositoryImpl @Inject constructor() : WalletRepository {
             accountLabel = result.accountLabel,
             walletUriBase = result.walletUriBase,
         )
+    }
+
+    override suspend fun signMessage(
+        client: MobileWalletAdapterClient,
+        messages: Array<ByteArray>,
+        addresses: Array<ByteArray>,
+    ): SignPayloadResultDto {
+        val result = client.signMessages(
+            messages,
+            addresses,
+        ).get()
+
+        Log.d(TAG, "Authorized: $result")
+        
+        return SignPayloadResultDto(
+            signedPayload = result.signedPayloads,
+        )
+    }
+
+    companion object {
+        private val TAG = WalletRepository::class.java.simpleName
     }
 }

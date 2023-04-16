@@ -1,5 +1,6 @@
-package com.example.solanamobiledappscaffold.domain.use_case.transaction_usecase
+package com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transaction_usecase
 
+import android.util.Log
 import com.example.solanamobiledappscaffold.common.Resource
 import com.example.solanamobiledappscaffold.data.remote.getBalance
 import com.solana.Solana
@@ -20,26 +21,33 @@ class BalanceUseCase {
                 emit(Resource.Loading())
                 solana.api.getBalance(
                     publicKey,
-                    commitment
+                    commitment,
                 ).onSuccess {
                     emit(Resource.Success(it))
                 }.onFailure {
+                    Log.e(TAG, it.message.toString())
                     emit(
                         Resource.Error(
-                            it.message.toString()
-                                ?: "An unexpected error occurred. Please try again later!"
-                        )
+                            it.localizedMessage
+                                ?: "An unexpected error occurred. Please try again later!",
+                        ),
                     )
                 }
             } catch (e: IOException) {
+                Log.e(TAG, e.message.toString())
                 emit(Resource.Error("Couldn't reach server. Check your internet connection!"))
             } catch (e: Exception) {
+                Log.e(TAG, e.message.toString())
                 emit(
                     Resource.Error(
-                        e.message.toString()
-                            ?: "An unexpected error occurred. Please try again later!"
-                    )
+                        e.localizedMessage
+                            ?: "An unexpected error occurred. Please try again later!",
+                    ),
                 )
             }
         }
+
+    companion object {
+        private val TAG = BalanceUseCase::class.java.simpleName
+    }
 }

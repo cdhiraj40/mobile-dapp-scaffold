@@ -1,8 +1,8 @@
 package com.example.solanamobiledappscaffold.data.remote.dto
 
 import android.net.Uri
+import android.util.Base64
 import com.example.solanamobiledappscaffold.domain.model.Wallet
-import org.bitcoinj.core.Base58
 
 data class WalletDto(
     val authToken: String?,
@@ -14,11 +14,13 @@ data class WalletDto(
     fun toWallet(): Wallet {
         return Wallet(
             publicKey = requireNotNull(publicKey) { "Public key is null" }.let(::toBase58),
+            walletUriBase = walletUriBase,
+            authToken = authToken,
         )
     }
 
     private fun toBase58(pubkey: ByteArray): String {
-        return Base58.encode(pubkey)
+        return Base64.encode(pubkey, Base64.NO_WRAP).decodeToString()
     }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

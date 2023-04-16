@@ -5,11 +5,13 @@ import com.solana.core.PublicKey
 import com.solana.networking.Commitment
 import com.solana.networking.RpcRequest
 import com.solana.networking.makeRequestResult
-import com.solana.networking.serialization.serializers.solana.SolanaResponseSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 /**
  * Represents a JSON-RPC request to get the balance of a Solana account, with a specified commitment level.
@@ -17,10 +19,12 @@ import kotlinx.serialization.json.*
  * @param accountAddress The public key of the account to get the balance of.
  * @param commitment The desired commitment level for the balance query.
  */
-class GetBalanceRequest(accountAddress: String, commitment: Commitment) : RpcRequest() {
-    override val method: String = "getBalance"
+class GetAirdropRequest(accountAddress: PublicKey, lamports: Long, commitment: Commitment) :
+    RpcRequest() {
+    override val method: String = "requestAirdrop"
     override val params = buildJsonArray {
-        add(accountAddress)
+        add(accountAddress.toBase58())
+        add(lamports)
         add(
             buildJsonObject {
                 put("commitment", commitment.value)
@@ -29,28 +33,33 @@ class GetBalanceRequest(accountAddress: String, commitment: Commitment) : RpcReq
     }
 }
 
-internal fun getBalanceSerializer() = SolanaResponseSerializer(Long.serializer())
+internal fun requestAirdropSerializer() = String.serializer()
 
-suspend fun Api.getBalance(account: PublicKey, commitment: Commitment): Result<Long> =
+suspend fun Api.requestAirdrop(
+    address: PublicKey,
+    lamports: Long,
+    commitment: Commitment,
+): Result<String> =
     router.makeRequestResult(
-        GetBalanceRequest(account.toBase58(), commitment),
-        getBalanceSerializer(),
+        GetAirdropRequest(address, lamports, commitment),
+        requestAirdropSerializer(),
     )
         .let { result ->
             @Suppress("UNCHECKED_CAST")
             if (result.isSuccess && result.getOrNull() == null) {
                 Result.failure(Error("Can not be null"))
             } else {
-                result as Result<Long> // safe cast, null case handled above
+                result as Result<String>
             }
         }
 
-fun Api.getBalance(
-    account: PublicKey,
+fun Api.requestAirdrop(
+    address: PublicKey,
+    lamports: Long,
     commitment: Commitment = Commitment.FINALIZED,
-    onComplete: ((Result<Long>) -> Unit),
+    onComplete: ((Result<String>) -> Unit),
 ) {
     CoroutineScope(dispatcher).launch {
-        onComplete(getBalance(account, commitment))
+        onComplete(requestAirdrop(address, lamports, commitment))
     }
 }

@@ -6,7 +6,7 @@ import java.math.RoundingMode
 
 object Constants {
     const val LAMPORTS_PER_SOL = 1000000000L
-    const val SOLANA = "Solana"
+    const val dAPP_NAME = "Solana Mobile Dapp Scaffold"
     const val SOLANA_URL = "https://solana.com"
 
     fun formatBalance(balance: Long): BigDecimal {

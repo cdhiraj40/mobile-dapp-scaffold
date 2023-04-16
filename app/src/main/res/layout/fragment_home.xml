@@ -41,11 +41,26 @@
         android:gravity="center"
         app:cornerRadius="10dp"
         app:icon="@drawable/baseline_circle_24"
-        android:textColor="@color/black"
-        android:backgroundTint="#14F195"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        app:iconTint="@color/red"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/copy_btn"
         app:layout_constraintTop_toBottomOf="@id/sub_heading"
-        tools:text="EABC...GHRA" />
+        tools:text="Select Wallet" />
+
+    <ImageView
+        android:id="@+id/copy_btn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        android:src="@drawable/baseline_content_copy_24"
+        app:layout_constraintBottom_toBottomOf="@id/wallet_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/wallet_btn"
+        app:tint="#14F195"
+        android:contentDescription="To copy wallet address" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/airdrop_btn"
