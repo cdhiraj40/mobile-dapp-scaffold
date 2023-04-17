@@ -1,8 +1,8 @@
-package com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transaction_usecase
+package com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transactions_usecase
 
 import android.util.Log
 import com.example.solanamobiledappscaffold.common.Resource
-import com.example.solanamobiledappscaffold.data.remote.getBalance
+import com.example.solanamobiledappscaffold.data.remote.requests.getBalance
 import com.solana.Solana
 import com.solana.core.PublicKey
 import com.solana.networking.Commitment

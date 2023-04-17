@@ -14,8 +14,8 @@ import com.example.solanamobiledappscaffold.common.Resource
 import com.example.solanamobiledappscaffold.domain.model.Wallet
 import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicWalletStorageUseCase
 import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.authorize_wallet.AuthorizeWalletUseCase
-import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transaction_usecase.BalanceUseCase
-import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transaction_usecase.RequestAirdropUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transactions_usecase.BalanceUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transactions_usecase.RequestAirdropUseCase
 import com.example.solanamobiledappscaffold.presentation.utils.StartActivityForResultSender
 import com.solana.Solana
 import com.solana.core.PublicKey

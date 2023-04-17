@@ -1,8 +1,8 @@
-package com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.sign_message
+package com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.sign_transaction
 
 import android.util.Log
 import com.example.solanamobiledappscaffold.common.Resource
-import com.example.solanamobiledappscaffold.domain.model.Message
+import com.example.solanamobiledappscaffold.domain.model.Transaction
 import com.example.solanamobiledappscaffold.domain.repository.WalletRepository
 import com.solana.mobilewalletadapter.clientlib.protocol.JsonRpc20Client
 import com.solana.mobilewalletadapter.clientlib.protocol.MobileWalletAdapterClient
@@ -13,16 +13,14 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 
-class SignMessageUseCase @Inject constructor(private val walletRepository: WalletRepository) {
+class SendTransactionUseCase @Inject constructor(private val walletRepository: WalletRepository) {
     suspend operator fun invoke(
         client: MobileWalletAdapterClient,
-        messages: Array<ByteArray>,
-        addresses: Array<ByteArray>,
-    ): Resource<Message> {
+        transactions: Array<ByteArray>,
+    ): Resource<Transaction> {
         try {
-            val message =
-                walletRepository.signMessage(client, messages, addresses).toMessage()
-            return Resource.Success(message)
+            val transaction = walletRepository.sendTransaction(client, transactions).toTransaction()
+            return Resource.Success(transaction)
         } catch (e: ExecutionException) {
             when (val cause = e.cause) {
                 is IOException -> {
@@ -30,7 +28,11 @@ class SignMessageUseCase @Inject constructor(private val walletRepository: Walle
                     return Resource.Error(e.localizedMessage ?: "An unexpected error occurred")
                 }
                 is TimeoutException -> {
-                    Log.e(TAG, "Timed out while waiting for authorize result", cause)
+                    Log.e(
+                        TAG,
+                        "Timed out while waiting for authorize result",
+                        cause,
+                    )
                     return Resource.Error(e.localizedMessage ?: "Timed out request")
                 }
                 is MobileWalletAdapterClient.InvalidPayloadsException -> {
@@ -83,6 +85,6 @@ class SignMessageUseCase @Inject constructor(private val walletRepository: Walle
     }
 
     companion object {
-        private val TAG = SignMessageUseCase::class.java.simpleName
+        private val TAG = SendTransactionUseCase::class.java.simpleName
     }
 }

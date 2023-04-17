@@ -1,27 +1,27 @@
 package com.example.solanamobiledappscaffold.domain.model
 
-import android.util.Base64
+import org.bitcoinj.core.Base58
 
-data class SignPayloadResult(
-    val signedPayload: ByteArray,
+data class Transaction(
+    val signedTransaction: ByteArray,
 ) {
 
     override fun toString(): String {
-        return Base64.encodeToString(signedPayload, Base64.NO_WRAP)
+        return Base58.encode(signedTransaction)
     }
-    
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as SignPayloadResult
+        other as Transaction
 
-        if (!signedPayload.contentEquals(other.signedPayload)) return false
+        if (!signedTransaction.contentEquals(other.signedTransaction)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return signedPayload.contentHashCode()
+        return signedTransaction.contentHashCode()
     }
 }

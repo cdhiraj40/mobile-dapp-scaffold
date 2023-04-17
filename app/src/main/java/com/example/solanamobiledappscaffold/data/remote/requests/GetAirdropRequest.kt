@@ -1,4 +1,4 @@
-package com.example.solanamobiledappscaffold.data.remote
+package com.example.solanamobiledappscaffold.data.remote.requests
 
 import com.solana.api.Api
 import com.solana.core.PublicKey

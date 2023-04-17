@@ -8,5 +8,6 @@ data class DashboardState(
     val balance: BigDecimal = BigDecimal(0),
     var wallet: Wallet? = null,
     val signedMessage: String? = null,
+    val transactionID: String? = null,
     val error: String = "",
 )

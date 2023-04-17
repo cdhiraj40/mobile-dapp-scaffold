@@ -13,8 +13,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.solanamobiledappscaffold.R
+import com.example.solanamobiledappscaffold.common.Constants.getSolanaExplorerUrl
 import com.example.solanamobiledappscaffold.databinding.FragmentDashboardBinding
 import com.example.solanamobiledappscaffold.presentation.ui.extensions.copyToClipboard
+import com.example.solanamobiledappscaffold.presentation.ui.extensions.openInBrowser
 import com.example.solanamobiledappscaffold.presentation.ui.extensions.showSnackbar
 import com.example.solanamobiledappscaffold.presentation.ui.extensions.showSnackbarWithAction
 import com.example.solanamobiledappscaffold.presentation.utils.StartActivityForResultSender
@@ -64,6 +66,7 @@ class DashboardFragment : Fragment() {
 
         binding.sendTransactionBtn.setOnClickListener {
             checkWalletConnected(view) {
+                viewModel.signTransaction(intentSender)
             }
         }
 
@@ -150,6 +153,12 @@ class DashboardFragment : Fragment() {
                         requireView().showSnackbarWithAction("Signed message: $it") {
                             requireContext().copyToClipboard(text = it)
                             requireView().showSnackbar("Copied to clipboard")
+                        }
+                    }
+
+                    uiState.transactionID?.let {
+                        requireView().showSnackbarWithAction("Transaction Signature: $it", "View") {
+                            requireContext().openInBrowser(getSolanaExplorerUrl(it))
                         }
                     }
                 }

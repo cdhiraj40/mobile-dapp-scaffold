@@ -3,7 +3,8 @@ package com.example.solanamobiledappscaffold.data.repository
 import android.net.Uri
 import android.util.Log
 import com.example.solanamobiledappscaffold.common.Constants
-import com.example.solanamobiledappscaffold.data.remote.dto.SignPayloadResultDto
+import com.example.solanamobiledappscaffold.data.remote.dto.MessageDto
+import com.example.solanamobiledappscaffold.data.remote.dto.TransactionDto
 import com.example.solanamobiledappscaffold.data.remote.dto.WalletDto
 import com.example.solanamobiledappscaffold.domain.repository.WalletRepository
 import com.solana.mobilewalletadapter.clientlib.protocol.MobileWalletAdapterClient
@@ -33,7 +34,7 @@ class WalletRepositoryImpl @Inject constructor() : WalletRepository {
         client: MobileWalletAdapterClient,
         messages: Array<ByteArray>,
         addresses: Array<ByteArray>,
-    ): SignPayloadResultDto {
+    ): MessageDto {
         val result = client.signMessages(
             messages,
             addresses,
@@ -41,8 +42,23 @@ class WalletRepositoryImpl @Inject constructor() : WalletRepository {
 
         Log.d(TAG, "Authorized: $result")
         
-        return SignPayloadResultDto(
-            signedPayload = result.signedPayloads,
+        return MessageDto(
+            signedMessages = result.signedPayloads,
+        )
+    }
+
+    override suspend fun sendTransaction(
+        client: MobileWalletAdapterClient, 
+        transactions: Array<ByteArray>,
+    ): TransactionDto {
+        val result = client.signTransactions(
+            transactions,
+        ).get()
+
+        Log.d(TAG, "Authorized: $result")
+        
+        return TransactionDto(
+            transactions = result.signedPayloads,
         )
     }
 

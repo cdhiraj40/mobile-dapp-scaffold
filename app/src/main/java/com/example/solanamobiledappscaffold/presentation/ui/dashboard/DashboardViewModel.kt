@@ -7,20 +7,27 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.solanamobiledappscaffold.common.Resource
-import com.example.solanamobiledappscaffold.domain.model.SignPayloadResult
+import com.example.solanamobiledappscaffold.domain.model.Message
 import com.example.solanamobiledappscaffold.domain.model.Wallet
 import com.example.solanamobiledappscaffold.domain.use_case.basic_storage.BasicWalletStorageUseCase
 import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.authorize_wallet.AuthorizeWalletUseCase
 import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.sign_message.SignMessageUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.sign_transaction.SendTransactionUseCase
+import com.example.solanamobiledappscaffold.domain.use_case.solana_rpc.transactions_usecase.GetLatestBlockhashUseCase
 import com.example.solanamobiledappscaffold.domain.utils.toBase64
 import com.example.solanamobiledappscaffold.presentation.utils.StartActivityForResultSender
 import com.solana.Solana
+import com.solana.api.sendRawTransaction
+import com.solana.core.PublicKey
+import com.solana.core.SerializeConfig
+import com.solana.core.Transaction
 import com.solana.mobilewalletadapter.clientlib.protocol.MobileWalletAdapterClient
 import com.solana.mobilewalletadapter.clientlib.scenario.LocalAssociationIntentCreator
 import com.solana.mobilewalletadapter.clientlib.scenario.LocalAssociationScenario
 import com.solana.mobilewalletadapter.clientlib.scenario.Scenario
 import com.solana.networking.HttpNetworkingRouter
 import com.solana.networking.RPCEndpoint
+import com.solana.programs.MemoProgram
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +45,9 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     private val authorizeWalletUseCase: AuthorizeWalletUseCase,
     private val walletStorageUseCase: BasicWalletStorageUseCase,
+    private val getLatestBlockhashUseCase: GetLatestBlockhashUseCase,
     private val signMessageUseCase: SignMessageUseCase,
+    private val sendTransactionUseCase: SendTransactionUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DashboardState())
     val uiState = _uiState.asStateFlow()
@@ -93,11 +102,11 @@ class DashboardViewModel @Inject constructor(
                         )
                     ) {
                         is Resource.Success -> {
-                            SignPayloadResult(message.data!!.signedPayload).let { signPayloadResult ->
+                            Message(message.data!!.signedMessage).let { signPayloadResult ->
                                 _uiState.update {
                                     it.copy(
-                                        signedMessage = SignPayloadResult(
-                                            signedPayload = signPayloadResult.signedPayload,
+                                        signedMessage = Message(
+                                            signedMessage = signPayloadResult.signedMessage,
                                         ).toString(),
                                     )
                                 }
@@ -123,6 +132,154 @@ class DashboardViewModel @Inject constructor(
                             ?: "An unexpected error occurred",
                         isLoading = false,
                     )
+                }
+            }
+        }
+    }
+
+    private suspend fun getLatestBlockhash(solana: Solana): Resource<String> {
+        var blockHash: Resource<String> = Resource.Loading()
+        getLatestBlockhashUseCase(solana).collect { result ->
+            blockHash = when (result) {
+                is Resource.Success -> {
+                    result
+                }
+                is Resource.Loading -> {
+                    result
+                }
+                is Resource.Error -> {
+                    result
+                }
+            }
+        }
+        return blockHash
+    }
+
+    fun signTransaction(sender: StartActivityForResultSender) = viewModelScope.launch {
+        _solana.value?.let { solana ->
+            withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+                getLatestBlockhash(solana).let { blockHash ->
+                    run {
+                        when (blockHash) {
+                            is Resource.Success -> {
+                                Log.d(TAG, "Blockhash: ${blockHash.data}")
+                                localAssociateAndExecute(sender) { client ->
+                                    when (val result = authorizeWalletUseCase(client)) {
+                                        is Resource.Success -> {
+                                            Log.d(TAG, "Wallet connected: ${result.data}")
+
+                                            _uiState.update {
+                                                it.copy(
+                                                    wallet = result.data,
+                                                )
+                                            }
+
+                                            walletStorageUseCase.saveWallet(
+                                                Wallet(
+                                                    result.data!!.publicKey58,
+                                                    result.data.publicKey64,
+                                                    result.data.balance,
+                                                ),
+                                            )
+
+                                            val instruction = MemoProgram.writeUtf8(
+                                                PublicKey(walletStorageUseCase.publicKey58!!),
+                                                "Say Hello to Solana Mobile dApp Scaffold!",
+                                            )
+
+                                            val transaction = Transaction()
+                                            transaction.setRecentBlockHash(blockHash.data!!)
+                                            transaction.addInstruction(instruction)
+                                            transaction.feePayer =
+                                                PublicKey(walletStorageUseCase.publicKey58!!)
+
+                                            val transactions = Array(1) {
+                                                transaction.serialize(
+                                                    config = SerializeConfig(
+                                                        requireAllSignatures = false,
+                                                    ),
+                                                )
+                                            }
+
+                                            when (
+                                                val message = sendTransactionUseCase(
+                                                    client,
+                                                    transactions,
+                                                )
+                                            ) {
+                                                is Resource.Success -> {
+                                                    com.example.solanamobiledappscaffold.domain.model.Transaction(
+                                                        message.data!!.signedTransaction,
+                                                    ).let { transaction ->
+
+                                                        // TODO: convert to usecase
+                                                        solana.api.sendRawTransaction(message.data.signedTransaction)
+                                                            .onSuccess { transactionID ->
+                                                                Log.d(
+                                                                    TAG,
+                                                                    "Transaction sent: $transactionID",
+                                                                )
+                                                                _uiState.update {
+                                                                    it.copy(
+                                                                        transactionID = transactionID,
+                                                                    )
+                                                                }
+                                                            }
+                                                            .onFailure {
+                                                                Log.d(
+                                                                    TAG,
+                                                                    it.localizedMessage
+                                                                        ?: it.message.toString(),
+                                                                )
+                                                            }
+
+                                                        Log.d(
+                                                            TAG,
+                                                            "Transaction: ${
+                                                                com.example.solanamobiledappscaffold.domain.model.Transaction(
+                                                                    signedTransaction = transaction.signedTransaction,
+                                                                )
+                                                            }",
+                                                        )
+                                                    }
+                                                }
+
+                                                is Resource.Loading -> {
+                                                }
+
+                                                is Resource.Error -> {
+                                                    Log.e(TAG, message.message.toString())
+                                                }
+                                            }
+                                        }
+                                        is Resource.Loading -> {
+                                            _uiState.value = DashboardState(
+                                                isLoading = true,
+                                            )
+                                        }
+                                        is Resource.Error -> {
+                                            Log.e(TAG, "Authorization failed")
+                                            _uiState.value = DashboardState(
+                                                error = result.message
+                                                    ?: "An unexpected error occurred",
+                                                isLoading = false,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            is Resource.Loading -> {
+                            }
+                            is Resource.Error -> {
+                                Log.e(TAG, "Fetch blockhash failed")
+                                _uiState.value = DashboardState(
+                                    error = blockHash.message
+                                        ?: "An unexpected error occurred",
+                                    isLoading = false,
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
