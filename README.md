@@ -28,8 +28,23 @@ To start using scaffold, follow the below steps:
 2. Select "Create a new repository".
 
 ## Structure
-(To be updated soon)  
+
 By adhering to best practices for architecture and design patterns, the scaffold ensures that developers can create applications that are easy to maintain and extend, with a separation of concerns between the data , domain and presentation layer.<br/>Below is the structure for Mobile dApp Scaffold considering from [app/src/main](https://github.com/cdhiraj40/mobile-dapp-scaffold/tree/main/app/src/main).
+```
+├── java/com/example/solanamobiledappscaffold : App's core logic
+│   ├── Common : common classes used through of the project
+│   ├── data : folder containing Data layer classes
+│   │   ├── di : should house the dependency injection components
+│   │   ├── remote : contains classes and interfaces related to handling network requests and responses, as well as remote data sources such as APIs etc
+│   │   ├── repository : should contain abstract data sources behind a single interface for the domain layer's use
+│   ├── domain : folder containing Domain layer classes
+│   │   ├── model : should contain data models and and business logic that define the data
+│   │   ├── repository : contains interfaces that the data layer implementation must conform to, providing a separation between the domain and data layer
+│   │   ├── use_case : contains specific business logic or operations that the application needs to perform
+│   │   ├── utils : reusable utility classes or helper functions
+│   ├── presentation : folder containing Presentation layer classes, typically activities, fragments, viewModels etc.
+├── res : folder contains application resources such as layouts, strings, and drawable assets, that are used by the UI. 
+```
 
 
 ## 👨‍💻 Contributing
