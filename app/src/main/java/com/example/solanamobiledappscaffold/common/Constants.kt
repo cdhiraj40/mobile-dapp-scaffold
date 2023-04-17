@@ -8,6 +8,7 @@ object Constants {
     const val LAMPORTS_PER_SOL = 1000000000L
     const val dAPP_NAME = "Solana Mobile Dapp Scaffold"
     const val SOLANA_URL = "https://solana.com"
+    fun getSolanaExplorerUrl(transactionID: String) = "https://explorer.solana.com/tx/$transactionID?cluster=devnet"
 
     fun formatBalance(balance: Long): BigDecimal {
         val balanceInLamports = BigDecimal.valueOf(balance)
