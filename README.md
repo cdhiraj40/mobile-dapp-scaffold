@@ -28,7 +28,7 @@ To start using scaffold, follow the below steps:
 
 ## Structure
 (To be updated soon)  
-By adhering to best practices for architecture and design patterns, the scaffold ensures that developers can create applications that are easy to maintain and extend, with a separation of concerns between the data , domain and presentation layer. Below is the structure for Mobile dApp Scaffold considering from [app/src/main](https://github.com/cdhiraj40/mobile-dapp-scaffold/tree/main/app/src/main)
+By adhering to best practices for architecture and design patterns, the scaffold ensures that developers can create applications that are easy to maintain and extend, with a separation of concerns between the data , domain and presentation layer.<br/>Below is the structure for Mobile dApp Scaffold considering from [app/src/main](https://github.com/cdhiraj40/mobile-dapp-scaffold/tree/main/app/src/main).
 
 
 ## 👨‍💻 Contributing
