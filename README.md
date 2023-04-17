@@ -5,9 +5,21 @@ Scaffold follows clean architecture and MVVM principles, enabling efficient and 
 Believe me, [There is no better time to build consumer mobile dApps.](https://twitter.com/intent/tweet?text=There%20is%20no%20better%20time%20to%20build%20consumer%20mobile%20dApps.%0a%0aStart%20building%3A%20&url=https%3A%2F%2Fgithub.com%2Fcdhiraj40%2Fmobile-dapp-scaffold%2F)
 
 ## Screenshots
-| Home | Dashboard |
-| :--: | :-------: |
-| <img src="https://user-images.githubusercontent.com/75211982/232579436-c54da8e8-ee31-465c-a921-9227bedc34c0.png" width="50%"> | <img src="https://user-images.githubusercontent.com/75211982/232579459-c5858817-52bb-4382-9d77-4cd989cdc860.png" width="50%"> |
+
+<table>
+  <thead>
+    <tr>
+      <th><h3>Home</h3></th>
+      <th><h3>Dashboard</h3></th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><img src="https://user-images.githubusercontent.com/75211982/232579436-c54da8e8-ee31-465c-a921-9227bedc34c0.png" alt="Image 1" width="400"></td>
+    <td><img src="https://user-images.githubusercontent.com/75211982/232579459-c5858817-52bb-4382-9d77-4cd989cdc860.png" alt="Image 2" width="400"></td>
+  </tr>
+    </tbody>
+</table>
 
 ## Getting Started 
 
