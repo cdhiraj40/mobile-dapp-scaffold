@@ -5,7 +5,7 @@
     <string name="title_settings">Settings</string>
     <string name="home_page_heading">Solana Mobile Scaffold</string>
     <string name="airdrop_sol">Airdrop 1 SOL</string>
-    <string name="home_page_sub_heading">There is no better time to build consumer mobile dapps. Unleash the full power of blockchain with Solana Mobile. Solana mobile applications made easy.</string>
+    <string name="home_page_sub_heading">There is no better time to build consumer mobile dapps.</string>
 
     <string name="wallet_balance">%1$s SOL</string>
     <string name="select_wallet">Select Wallet</string>
