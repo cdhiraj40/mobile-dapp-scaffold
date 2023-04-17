@@ -24,7 +24,8 @@ Believe me, [There is no better time to build consumer mobile dApps.](https://tw
 ## Getting Started 
 
 To start using scaffold, follow the below steps:
-
+1. Click on "Use this template" dropdown.
+2. Select "Create a new repository".
 
 ## Structure
 (To be updated soon)  
