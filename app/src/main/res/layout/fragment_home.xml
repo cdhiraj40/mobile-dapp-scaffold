@@ -38,11 +38,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:backgroundTint="@color/black"
         android:gravity="center"
+        android:textColor="@color/white"
         app:cornerRadius="10dp"
         app:icon="@drawable/baseline_circle_24"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/black"
         app:iconTint="@color/red"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintEnd_toStartOf="@id/copy_btn"
@@ -54,13 +54,29 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_margin="16dp"
-        android:visibility="gone"
+        android:contentDescription="To copy wallet address"
         android:src="@drawable/baseline_content_copy_24"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/wallet_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/wallet_btn"
-        app:tint="#14F195"
-        android:contentDescription="To copy wallet address" />
+        app:tint="#14F195" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/build_dapps_btn"
+        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="100dp"
+        android:backgroundTint="@drawable/text_background"
+        android:gravity="center"
+        android:text="@string/build_mobile_dapps"
+        app:cornerRadius="10dp"
+        app:icon="@drawable/baseline_twitter_24"
+        app:iconTint="#00aced"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/airdrop_btn"

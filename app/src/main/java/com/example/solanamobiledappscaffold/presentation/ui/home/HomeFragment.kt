@@ -15,9 +15,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.solanamobiledappscaffold.R
+import com.example.solanamobiledappscaffold.common.Constants.TWITTER_SHARE_URL
 import com.example.solanamobiledappscaffold.common.Constants.formatAddress
 import com.example.solanamobiledappscaffold.databinding.FragmentHomeBinding
 import com.example.solanamobiledappscaffold.presentation.ui.extensions.copyToClipboard
+import com.example.solanamobiledappscaffold.presentation.ui.extensions.openInBrowser
 import com.example.solanamobiledappscaffold.presentation.ui.extensions.showSnackbar
 import com.example.solanamobiledappscaffold.presentation.utils.StartActivityForResultSender
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,12 +47,12 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        
+
         val animDrawable = binding.root.background as AnimationDrawable
         animDrawable.setEnterFadeDuration(10)
         animDrawable.setExitFadeDuration(1000)
         animDrawable.start()
-        
+
         return binding.root
     }
 
@@ -58,7 +60,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.walletBtn.text = viewModel.getWalletButtonText(requireContext())
-        
+
         binding.walletBtn.setOnClickListener {
             // TODO: open modal showing two things, copy and disconnect
             viewModel.interactWallet(intentSender)
@@ -72,14 +74,18 @@ class HomeFragment : Fragment() {
                 "Connect a wallet first!",
             )
         }
-        
+
         binding.copyBtn.setOnClickListener {
             requireContext().copyToClipboard(
                 "Wallet address",
                 viewModel.uiState.value.wallet?.publicKey58 ?: "",
-            ).let { 
+            ).let {
                 view.showSnackbar("Copied to clipboard!")
             }
+        }
+
+        binding.buildDappsBtn.setOnClickListener {
+            requireContext().openInBrowser(TWITTER_SHARE_URL)
         }
 
         observeViewModel()
@@ -104,7 +110,7 @@ class HomeFragment : Fragment() {
 
                     uiState.balance.let {
                         binding.balanceTv.text = String.format(
-                            resources.getString(R.string.wallet_balance), 
+                            resources.getString(R.string.wallet_balance),
                             it,
                         )
                     }
@@ -119,11 +125,11 @@ class HomeFragment : Fragment() {
             }
         }
     }
-    
+
     private fun connectWallet(publicKey: String) {
         // show the copy button
         binding.copyBtn.visibility = View.VISIBLE
-        
+
         binding.walletBtn.text = formatAddress(publicKey)
         binding.walletBtn.setTextColor(
             ContextCompat.getColor(requireContext(), R.color.black),
@@ -144,7 +150,7 @@ class HomeFragment : Fragment() {
     private fun disconnectWallet() {
         // hide the copy button
         binding.copyBtn.visibility = View.GONE
-        
+
         binding.walletBtn.text = getString(R.string.select_wallet)
         binding.walletBtn.setTextColor(
             ContextCompat.getColor(requireContext(), R.color.white),
