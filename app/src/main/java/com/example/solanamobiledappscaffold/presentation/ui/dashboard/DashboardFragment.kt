@@ -71,8 +71,7 @@ class DashboardFragment : Fragment() {
         }
 
         binding.sendVersionedTransactionBtn.setOnClickListener {
-            checkWalletConnected(view) {
-            }
+            requireView().showSnackbar("Coming soon! :)")
         }
 
         observeViewModel()
@@ -102,19 +101,11 @@ class DashboardFragment : Fragment() {
             ContextCompat.getColor(requireContext(), R.color.black),
         )
 
-        binding.sendVersionedTransactionBtn.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.black),
-        )
-
         binding.signMsgBtn.setBackgroundColor(
             ContextCompat.getColor(requireContext(), R.color.solana_green),
         )
 
         binding.sendTransactionBtn.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.solana_green),
-        )
-
-        binding.sendVersionedTransactionBtn.setBackgroundColor(
             ContextCompat.getColor(requireContext(), R.color.solana_green),
         )
     }
@@ -128,19 +119,11 @@ class DashboardFragment : Fragment() {
             ContextCompat.getColor(requireContext(), R.color.white),
         )
 
-        binding.sendVersionedTransactionBtn.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.white),
-        )
-
         binding.signMsgBtn.setBackgroundColor(
             ContextCompat.getColor(requireContext(), R.color.dark_gray),
         )
 
         binding.sendTransactionBtn.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.dark_gray),
-        )
-
-        binding.sendVersionedTransactionBtn.setBackgroundColor(
             ContextCompat.getColor(requireContext(), R.color.dark_gray),
         )
     }
