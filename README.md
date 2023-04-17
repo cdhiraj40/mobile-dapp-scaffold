@@ -2,7 +2,7 @@
 The Solana Mobile dApp scaffold is a respository template providing fast and efficient way for developers to build decentralized mobile applications on the Solana blockchain. With the scaffold, developers can quickly set up and get started with building their Solana mobile dApp. The scaffold includes pre-built components integrated with features, such as wallet connection, airdrop SOL(DEVNET/TESTNET), sign messages and send transactions.
 Scaffold follows clean architecture and MVVM principles, enabling efficient and robust mobile app development.
 
-Believe me, [There is no better time to build consumer mobile dApps.](https://twitter.com/intent/tweet?text=There%20is%20no%20better%20time%20to%20build%20consumer%20mobile%20dApps.%0a%0aStart%20building%3A%20&url=https%3A%2F%2Fgithub.com%2Fcdhiraj40%2Fmobile-dapp-scaffold%2F)
+[Believe me, There is no better time to build consumer mobile dApps.](https://twitter.com/intent/tweet?text="Believe%20me%2C%20there%20is%20no%20better%20time%20to%20build%20consumer%20mobile%20dApps.%22%20-%20%40cdhiraj40%0A%0AStart%20building%20on%20%40solanamobile%20today!&url=https%3A%2F%2Fgithub.com%2Fcdhiraj40%2Fmobile-dapp-scaffold%2F%20)
 
 ## Screenshots
 
@@ -53,5 +53,5 @@ By adhering to best practices for architecture and design patterns, the scaffold
 
 ## Bug / Feature Request
 
-If you find a bug in the app, kindly open an issue [here](https://github.com/cdhiraj40/mobile-dapp-scaffold/issues/new) to report it by
-including a proper description of the bug and the expected result. Feature requests are appreciated too. If you feel like a certain feature is missing, feel free to create an issue to discuss with the maintainers.
+If you find a bug in the app, kindly open an issue [here](https://github.com/cdhiraj40/mobile-dapp-scaffold/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBug%5D%3A+) to report it by
+including a proper description of the bug and the expected result. https://github.com/cdhiraj40/mobile-dapp-scaffold/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=%5BFeature+Request%5D%3A+ are appreciated too. If you feel like a certain feature is missing, feel free to create an issue to discuss with the maintainers.
