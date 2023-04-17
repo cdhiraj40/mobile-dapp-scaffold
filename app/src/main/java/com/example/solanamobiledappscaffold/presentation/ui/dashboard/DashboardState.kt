@@ -7,5 +7,6 @@ data class DashboardState(
     val isLoading: Boolean = false,
     val balance: BigDecimal = BigDecimal(0),
     var wallet: Wallet? = null,
+    val signedMessage: String? = null,
     val error: String = "",
 )

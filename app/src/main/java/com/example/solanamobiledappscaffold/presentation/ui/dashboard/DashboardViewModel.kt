@@ -52,8 +52,8 @@ class DashboardViewModel @Inject constructor(
         _solana.value = Solana(HttpNetworkingRouter(RPCEndpoint.devnetSolana))
         if (walletStorageUseCase.publicKey58 != null && walletStorageUseCase.publicKey64 != null) {
             _uiState.value.wallet = Wallet(
-                walletStorageUseCase.publicKey58.toString(),
-                walletStorageUseCase.publicKey64.toString(),
+                publicKey58 = walletStorageUseCase.publicKey58.toString(),
+                publicKey64 = walletStorageUseCase.publicKey64.toString(),
                 walletStorageUseCase.balance,
             )
         } else {
@@ -80,7 +80,7 @@ class DashboardViewModel @Inject constructor(
                             result.data.balance,
                         ),
                     )
-                    
+
                     val messages = Array(1) {
                         "Say Hello to Solana Mobile dApp Scaffold!".toByteArray()
                     }
@@ -93,7 +93,15 @@ class DashboardViewModel @Inject constructor(
                         )
                     ) {
                         is Resource.Success -> {
-                            val signPayloadResult = SignPayloadResult(message.data!!.signedPayload)
+                            SignPayloadResult(message.data!!.signedPayload).let { signPayloadResult ->
+                                _uiState.update {
+                                    it.copy(
+                                        signedMessage = SignPayloadResult(
+                                            signedPayload = signPayloadResult.signedPayload,
+                                        ).toString(),
+                                    )
+                                }
+                            }
                         }
 
                         is Resource.Loading -> {

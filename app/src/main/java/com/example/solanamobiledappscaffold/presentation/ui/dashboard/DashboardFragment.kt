@@ -8,11 +8,15 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.GuardedBy
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.solanamobiledappscaffold.R
 import com.example.solanamobiledappscaffold.databinding.FragmentDashboardBinding
+import com.example.solanamobiledappscaffold.presentation.ui.extensions.copyToClipboard
 import com.example.solanamobiledappscaffold.presentation.ui.extensions.showSnackbar
+import com.example.solanamobiledappscaffold.presentation.ui.extensions.showSnackbarWithAction
 import com.example.solanamobiledappscaffold.presentation.utils.StartActivityForResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -46,6 +50,12 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        checkWalletConnected({
+            enableWallet()
+        }, {
+            disableWallet()
+        })
+
         binding.signMsgBtn.setOnClickListener {
             checkWalletConnected(view) {
                 viewModel.signMessage(intentSender)
@@ -71,10 +81,77 @@ class DashboardFragment : Fragment() {
         } ?: view.showSnackbar("Connect a wallet first!")
     }
 
+    private fun checkWalletConnected(
+        positiveAction: () -> Unit,
+        negativeAction: () -> Unit,
+    ) {
+        viewModel.uiState.value.wallet?.publicKey58?.let {
+            positiveAction.invoke()
+        } ?: negativeAction.invoke()
+    }
+
+    private fun enableWallet() {
+        binding.signMsgBtn.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.black),
+        )
+
+        binding.sendTransactionBtn.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.black),
+        )
+
+        binding.sendVersionedTransactionBtn.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.black),
+        )
+
+        binding.signMsgBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.solana_green),
+        )
+
+        binding.sendTransactionBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.solana_green),
+        )
+
+        binding.sendVersionedTransactionBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.solana_green),
+        )
+    }
+
+    private fun disableWallet() {
+        binding.signMsgBtn.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.white),
+        )
+
+        binding.sendTransactionBtn.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.white),
+        )
+
+        binding.sendVersionedTransactionBtn.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.white),
+        )
+
+        binding.signMsgBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.dark_gray),
+        )
+
+        binding.sendTransactionBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.dark_gray),
+        )
+
+        binding.sendVersionedTransactionBtn.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.dark_gray),
+        )
+    }
+
     private fun observeViewModel() {
         lifecycleScope.launch {
             with(viewModel) {
                 uiState.collect { uiState ->
+                    uiState.signedMessage?.let {
+                        requireView().showSnackbarWithAction("Signed message: $it") {
+                            requireContext().copyToClipboard(text = it)
+                            requireView().showSnackbar("Copied to clipboard")
+                        }
+                    }
                 }
             }
         }
