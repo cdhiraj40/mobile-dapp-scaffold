@@ -85,11 +85,11 @@ class HomeViewModel @Inject constructor(
                         wallet = result.data,
                         isLoading = false,
                     )
-                    
+
                     walletStorageUseCase.saveWallet(
                         result.data!!,
                     )
-                    
+
                     getBalance()
                 }
                 is Resource.Loading -> {
